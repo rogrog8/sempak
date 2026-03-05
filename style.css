@@ -68,22 +68,43 @@ body {
     text-align: center;
 }
 
+/* --- PERCANTIK LOGO SIDEBAR (MENGIKUTI BENTUK) --- */
 .logo-container {
-    width: 75px;
-    height: 75px;
-    margin-bottom: 1rem;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 5px;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.2rem;
+    background: #ffffff; 
+    /* 1. Membuat bentuk membulat modern */
+    border-radius: 22px; 
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0; /* Ubah ke 0 agar gambar bisa menempel ke pinggir jika perlu */
+    
+    /* 2. KUNCI UTAMA: Memotong gambar agar mengikuti bentuk kontainer */
+    overflow: hidden; 
+    
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
 }
 
 #sidebar-logo {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    /* 3. Memastikan gambar menutupi seluruh area kontainer yang sudah bulat */
+    object-fit: cover; 
+    /* Memberikan sedikit transisi halus */
+    transition: transform 0.5s ease;
+}
+
+.logo-container:hover #sidebar-logo {
+    transform: scale(1.1); /* Efek zoom halus saat di-hover */
 }
 
 .sidebar-header h2 {
@@ -128,15 +149,10 @@ body {
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
 
 /* --- GLOBAL FORM CONTROL (FIX DROPDOWN KELUAR GARIS) --- */
-.form-group { margin-bottom: 1rem; }
-.form-group label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; }
-
-/* --- GLOBAL FORM CONTROL (FIX DROPDOWN KELUAR GARIS) --- */
-/* --- GLOBAL FORM CONTROL (FIX DROPDOWN KELUAR GARIS) --- */
 .form-group { 
     margin-bottom: 1.25rem; 
     width: 100%; 
-    min-width: 0; /* WAJIB: Memungkinkan elemen mengecil di bawah ukuran konten */
+    min-width: 0; 
 }
 
 .form-control { 
@@ -149,17 +165,17 @@ body {
     transition: 0.3s;
     font-size: 0.95rem;
     display: block;
-    box-sizing: border-box; /* WAJIB: Padding tidak boleh menambah lebar luar */
+    box-sizing: border-box; 
 }
 
 /* KHUSUS SELECT: Mematikan paksa ekspansi elemen oleh browser mobile */
 select.form-control {
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Memotong teks dengan titik-titik (...) */
+    text-overflow: ellipsis; 
     cursor: pointer;
     appearance: none; 
-    -webkit-appearance: none; /* Penting untuk Chrome/Safari Mobile */
+    -webkit-appearance: none; 
     -moz-appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
@@ -174,6 +190,51 @@ select.form-control {
 .summary-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
 .summary-card { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; border-top: 4px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 .big-number { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
+
+/* --- PERBAIKAN 2: PROGRESS BAR DASHBOARD --- */
+.progress-container {
+    width: 100%;
+    background-color: #E2E8F0;
+    border-radius: 10px;
+    height: 12px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    width: 0%; 
+    transition: width 0.5s ease-in-out;
+}
+
+/* --- PERBAIKAN 3: TOMBOL HAPUS LEBIH KEREN --- */
+.btn-danger {
+    background-color: #fee2e2; 
+    color: #ef4444; 
+    border: 1px solid #fecaca;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-danger:hover {
+    background-color: #ef4444;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger::before {
+    content: '🗑';
+    font-size: 0.8rem;
+}
 
 /* --- TABEL RESPONSIVE --- */
 .table-container {
@@ -203,32 +264,33 @@ select.form-control {
 @media (max-width: 768px) {
     .sidebar { left: -280px; transform: none !important; }
     .sidebar.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-    .main-content { margin-left: 0 !important; padding: 1.5rem; padding-top: 80px; }
-    .grid-2, .grid-3, .summary-cards { grid-template-columns: 1fr; }
-    .card { padding: 1.25rem; 
-    padding: 1.25rem !important; 
-        /* Memastikan card tidak pernah lebih lebar dari layar HP */
+    
+    /* PERBAIKAN 1: JARAK HEADER MOBILE */
+    .header-section {
+        margin-top: 20px !important;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 60px 10px 20px 10px !important;
         width: 100% !important;
-        max-width: 100% !important;
-        overflow: hidden; 
         box-sizing: border-box;
-        /* Mencegah flex-item melebarkan kontainer */
-        min-width: 0;}
-/* Memaksa grid menjadi satu kolom yang stabil */
+        overflow-x: hidden;
+    }
+
+    .grid-2, .grid-3, .summary-cards { grid-template-columns: 1fr; }
+    .card { padding: 1.25rem; width: 100% !important; max-width: 100% !important; overflow: hidden; box-sizing: border-box; min-width: 0;}
+    
     .grid-3, .grid-2 {
         display: flex !important;
         flex-direction: column !important;
         width: 100% !important;
         min-width: 0 !important;
     }
-
-    .main-content {
-        padding: 80px 10px 20px 10px !important;
-        width: 100% !important;
-        box-sizing: border-box;
-        overflow-x: hidden;
-    }
 }
+
 /* Animations */
 .tab-content { display: none; animation: fadeIn 0.3s ease; }
 .tab-content.active { display: block; }

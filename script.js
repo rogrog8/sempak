@@ -52,14 +52,12 @@ function tambahSKP() {
 
     if(!tahun) return alert("Masukkan tahun penilaian!");
 
-    // VALIDASI 1: Cek apakah tahun SKP ini sudah pernah diinput sebelumnya
     const isTahunAda = dataSKP.some(item => item.tahun === tahun && item.isPendidikan === false);
     if (isTahunAda) {
-        return alert(`GAGAL: Predikat Kinerja (SKP) untuk tahun ${tahun} sudah ditambahkan sebelumnya. Anda tidak bisa menambahkan tahun yang sama lebih dari satu kali.`);
+        return alert(`GAGAL: Predikat Kinerja (SKP) untuk tahun ${tahun} sudah ditambahkan sebelumnya.`);
     }
 
     const akDidapat = KOEFISIEN_JABATAN[jabatanSaatIni] * predikatVal;
-
     dataSKP.push({ id: Date.now(), tahun, predikatText, akDidapat, isPendidikan: false });
     renderTableSKP();
 }
@@ -70,14 +68,12 @@ function tambahPendidikan() {
     
     if(!tahun) return alert("Masukkan tahun kelulusan/ijazah!");
     
-    // VALIDASI 2: Cek apakah riwayat Pendidikan sudah pernah ditambahkan
     const isPendidikanAda = dataSKP.some(item => item.isPendidikan === true);
     if (isPendidikanAda) {
-        return alert("GAGAL: Tambahan AK Peningkatan Pendidikan hanya dapat dimasukkan 1 (satu) kali untuk pengusulan kenaikan jabatan ini.");
+        return alert("GAGAL: Tambahan AK Peningkatan Pendidikan hanya dapat dimasukkan 1 (satu) kali.");
     }
     
     const akDidapat = KOEFISIEN_JABATAN[jabatanSaatIni];
-    
     dataSKP.push({ 
         id: Date.now(), 
         tahun: tahun, 
@@ -85,7 +81,6 @@ function tambahPendidikan() {
         akDidapat: akDidapat,
         isPendidikan: true 
     });
-    
     renderTableSKP();
 }
 
@@ -107,37 +102,48 @@ function tambahPrestasi() {
     const judul = document.getElementById('pres-judul').value || "Karya Ilmiah/Publikasi";
     const maksAK = parseFloat(document.getElementById('pres-kategori').value);
     const kategoriText = document.getElementById('pres-kategori').options[document.getElementById('pres-kategori').selectedIndex].text;
-    
     const jmlPenulis = parseInt(document.getElementById('pres-jml-penulis').value);
     const kodePeran = document.getElementById('pres-peran').value;
     
-    if(!tahun) return alert("Tahun publikasi wajib diisi agar sistem bisa membatasi batas tahunan secara akurat!");
+    if(!tahun) return alert("Tahun publikasi wajib diisi!");
     if(jmlPenulis < 1) return alert("Jumlah penulis minimal 1 orang.");
 
     let persentase = 0;
     let labelPeranDetail = "";
 
+    // LOGIKA PERHITUNGAN AK BERDASARKAN PERAN & JUMLAH PENULIS
     if (jmlPenulis === 1 || kodePeran === 'TUNGGAL') {
         persentase = 1.0;
         labelPeranDetail = "Penulis Tunggal (100%)";
     } 
-    else if (jmlPenulis === 2) {
-        if (kodePeran === 'PERTAMA_DAN_KORES') { persentase = 0.60; labelPeranDetail = "Penulis 1 & Kores (60%)"; }
-        else if (kodePeran === 'PERTAMA_SAJA') { persentase = 0.50; labelPeranDetail = "Penulis 1 (50%)"; }
-        else if (kodePeran === 'KORES_SAJA') { persentase = 0.50; labelPeranDetail = "Penulis Kores (50%)"; }
-        else if (kodePeran === 'ANGGOTA_A') { persentase = 0.40; labelPeranDetail = "Anggota Tipe A (40%)"; }
-        else if (kodePeran === 'ANGGOTA_B') { persentase = 0.50; labelPeranDetail = "Anggota Tipe B (50%)"; }
-    } 
-    else if (jmlPenulis > 2) {
-        if (kodePeran === 'PERTAMA_DAN_KORES') { persentase = 0.60; labelPeranDetail = "Penulis 1 & Kores (60%)"; }
-        else if (kodePeran === 'PERTAMA_SAJA') { persentase = 0.40; labelPeranDetail = "Penulis 1 (40%)"; }
-        else if (kodePeran === 'KORES_SAJA') { persentase = 0.40; labelPeranDetail = "Penulis Kores (40%)"; }
+    else {
+        // Jika Penulis > 1
+        if (kodePeran === 'PERTAMA_DAN_KORES') { 
+            persentase = 0.60; 
+            labelPeranDetail = "Penulis 1 & Kores (60%)"; 
+        }
+        else if (kodePeran === 'PERTAMA_SAJA') { 
+            persentase = 0.40; 
+            labelPeranDetail = "Penulis 1 (40%)"; 
+        }
+        else if (kodePeran === 'KORES_SAJA') { 
+            persentase = 0.40; 
+            labelPeranDetail = "Penulis Kores (40%)"; 
+        }
         else if (kodePeran === 'ANGGOTA_A') { 
-            persentase = 0.40 / (jmlPenulis - 1); 
+            // Anggota jika Penulis 1 merangkap Kores (Sisa 40% dibagi rata ke semua anggota)
+            const jumlahAnggota = jmlPenulis - 1;
+            persentase = 0.40 / jumlahAnggota; 
             labelPeranDetail = `Anggota Tipe A (${(persentase*100).toFixed(1)}%)`; 
         }
         else if (kodePeran === 'ANGGOTA_B') { 
-            persentase = 0.20 / (jmlPenulis - 2); 
+            // Anggota jika Penulis 1 TIDAK merangkap Kores (Sisa 20% dibagi rata ke semua anggota selain P1 & Kores)
+            const jumlahAnggotaSelainP1Kores = jmlPenulis - 2;
+            if (jumlahAnggotaSelainP1Kores > 0) {
+                persentase = 0.20 / jumlahAnggotaSelainP1Kores;
+            } else {
+                persentase = 0; // Kasus tidak valid jika hanya 2 penulis tapi pilih tipe B
+            }
             labelPeranDetail = `Anggota Tipe B (${(persentase*100).toFixed(1)}%)`; 
         }
     }
@@ -146,7 +152,9 @@ function tambahPrestasi() {
     dataPrestasi.push({ id: Date.now(), tahun, judul, kategoriText, peranText: labelPeranDetail, akDidapat });
     renderTablePrestasi();
 }
+
 function hapusPrestasi(id) { dataPrestasi = dataPrestasi.filter(item => item.id !== id); renderTablePrestasi(); }
+
 function renderTablePrestasi() {
     const tbody = document.getElementById('table-prestasi');
     tbody.innerHTML = '';
@@ -170,12 +178,8 @@ function updateDashboard() {
     let rekapTahunan = {};
     dataSKP.forEach(item => {
         if(!rekapTahunan[item.tahun]) rekapTahunan[item.tahun] = { skpNormal: 0, pendidikan: 0, prestasi: 0 };
-        
-        if(item.isPendidikan) {
-            rekapTahunan[item.tahun].pendidikan += item.akDidapat;
-        } else {
-            rekapTahunan[item.tahun].skpNormal += item.akDidapat;
-        }
+        if(item.isPendidikan) { rekapTahunan[item.tahun].pendidikan += item.akDidapat; } 
+        else { rekapTahunan[item.tahun].skpNormal += item.akDidapat; }
     });
     dataPrestasi.forEach(item => {
         if(!rekapTahunan[item.tahun]) rekapTahunan[item.tahun] = { skpNormal: 0, pendidikan: 0, prestasi: 0 };
@@ -193,17 +197,16 @@ function updateDashboard() {
 
         let skpDiakui = Math.min(inputSKP, batasMaksSKP);
         if (inputSKP > batasMaksSKP) {
-            rincianPemotongan.push(`Thn ${tahun}: SKP (${inputSKP.toFixed(2)}) melampaui batas maks SKP, dikunci di (${batasMaksSKP.toFixed(2)}).`);
+            rincianPemotongan.push(`Thn ${tahun}: SKP (${inputSKP.toFixed(2)}) melampaui batas maks.`);
         }
 
         let totalSKPGabungan = skpDiakui + inputPendidikan;
-
         let sisaKuotaTahunan = batasTahunanMaks - skpDiakui;
         let batasPrestasiTahunIni = Math.min(sisaKuotaTahunan, batasMaksPrestasi); 
         let prestasiDiakui = Math.min(inputPres, batasPrestasiTahunIni);
         
         if (inputPres > batasPrestasiTahunIni) {
-            rincianPemotongan.push(`Thn ${tahun}: Prestasi (${inputPres.toFixed(2)}) dipotong menjadi (${batasPrestasiTahunIni.toFixed(2)}) sesuai batas kuota sisa SKP.`);
+            rincianPemotongan.push(`Thn ${tahun}: Prestasi (${inputPres.toFixed(2)}) dipotong sesuai sisa kuota.`);
         }
 
         totalAK_SKP_Diakui += totalSKPGabungan;
@@ -213,14 +216,25 @@ function updateDashboard() {
     const totalTambahanBaru = totalAK_SKP_Diakui + totalAK_Prestasi_Diakui;
     const totalAkumulasi = nilaiDasarJabatan + akIntegrasi + totalTambahanBaru;
     const kekurangan = targetAK - totalAkumulasi;
+
+    // --- PERBAIKAN 2: SINKRONISASI PROGRESS BAR ---
     const persentaseProgress = Math.min((totalAkumulasi / targetAK) * 100, 100);
+    const progressBar = document.getElementById('dashboard-progress');
+    const progressText = document.getElementById('progress-text');
+
+    if (progressBar) {
+        progressBar.style.width = persentaseProgress + '%';
+    }
+    if (progressText) {
+        progressText.innerText = persentaseProgress.toFixed(1) + '% Menuju Target';
+    }
 
     document.getElementById('sum-skp').innerText = totalAK_SKP_Diakui.toFixed(2);
     document.getElementById('sum-prestasi').innerText = totalAK_Prestasi_Diakui.toFixed(2);
 
     let pesanPotongan = rincianPemotongan.length > 0 ? 
         `<div style="background:#FEF2F2; color:#991B1B; padding:12px; border-radius:6px; font-size:0.85rem; margin-bottom:1.5rem; border-left:4px solid #EF4444;">
-        <strong>⚠️ Peringatan: Ada pemotongan AK sesuai aturan kepatutan:</strong>
+        <strong>⚠️ Peringatan: Ada pemotongan AK sesuai aturan:</strong>
         <ul style="margin-top:5px; margin-left:20px;">${rincianPemotongan.map(msg => `<li>${msg}</li>`).join('')}</ul></div>` : "";
 
     const htmlRincian = `
@@ -240,34 +254,28 @@ function updateDashboard() {
         resultBoard.innerHTML = pesanPotongan + `
             <h3 style="color: var(--secondary);">🎉 Memenuhi Syarat!</h3>
             ${htmlRincian}
-            <div class="progress-bar-bg" style="margin-top: 15px;"><div class="progress-bar-fill" style="width: 100%; background: var(--secondary);"></div></div>
         `;
     } else {
         resultBoard.innerHTML = pesanPotongan + `
             <h3>Status: Belum Memenuhi</h3>
             ${htmlRincian}
             <p style="color: var(--danger); font-weight: 600; margin-top: 10px;">Kekurangan: ${kekurangan.toFixed(2)} AK</p>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${persentaseProgress}%;"></div></div>
         `;
     }
 }
+
 // --- FUNGSI HIDE/SHOW SIDEBAR ---
 function toggleSidebar() {
     const sidebar = document.getElementById('mySidebar');
     const mainContent = document.querySelector('.main-content');
-    
-    // Untuk Desktop: Geser samping & lebarkan konten
     if (window.innerWidth > 768) {
         sidebar.classList.toggle('hidden');
         mainContent.classList.toggle('full-width');
-    } 
-    // Untuk Mobile: Munculkan sebagai overlay
-    else {
+    } else {
         sidebar.classList.toggle('active');
     }
 }
 
-// Otomatis tutup sidebar saat menu diklik (khusus mobile)
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
         if (window.innerWidth <= 768) {
