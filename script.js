@@ -251,5 +251,29 @@ function updateDashboard() {
         `;
     }
 }
+// --- FUNGSI HIDE/SHOW SIDEBAR ---
+function toggleSidebar() {
+    const sidebar = document.getElementById('mySidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    // Untuk Desktop: Geser samping & lebarkan konten
+    if (window.innerWidth > 768) {
+        sidebar.classList.toggle('hidden');
+        mainContent.classList.toggle('full-width');
+    } 
+    // Untuk Mobile: Munculkan sebagai overlay
+    else {
+        sidebar.classList.toggle('active');
+    }
+}
+
+// Otomatis tutup sidebar saat menu diklik (khusus mobile)
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            document.getElementById('mySidebar').classList.remove('active');
+        }
+    });
+});
 
 updateDashboard();

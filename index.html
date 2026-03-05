@@ -8,8 +8,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+    <button id="sidebarToggle" onclick="toggleSidebar()">☰</button>
 
-    <nav class="sidebar">
+    <nav class="sidebar" id="mySidebar">
         <div class="sidebar-header">
             <div class="logo-container">
                 <img src="img/logo-kampus.png" alt="Logo SEMPAK" id="sidebar-logo">
@@ -82,8 +84,7 @@
                 </div>
             </div>
 
-            <div class="card result-board" id="final-result">
-                </div>
+            <div class="card result-board" id="final-result"></div>
         </section>
 
         <section id="pengangkatan" class="tab-content">
@@ -159,10 +160,12 @@
 
             <div class="card">
                 <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Daftar Rekap SKP & Pendidikan</h3>
-                <table class="data-table">
-                    <thead><tr><th>Tahun</th><th>Jenis Penilaian / Kinerja</th><th>Nilai AK</th><th>Aksi</th></tr></thead>
-                    <tbody id="table-skp"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead><tr><th>Tahun</th><th>Jenis Penilaian / Kinerja</th><th>Nilai AK</th><th>Aksi</th></tr></thead>
+                        <tbody id="table-skp"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -241,10 +244,13 @@
                 </div>
                 <div class="form-group"><label>Judul Karya (Opsional)</label><input type="text" id="pres-judul" class="form-control" placeholder="Masukkan judul..."></div>
                 <button class="btn-primary" onclick="tambahPrestasi()">+ Hitung & Tambah Prestasi</button>
-                <table class="data-table" style="margin-top: 2rem;">
-                    <thead><tr><th>Tahun</th><th>Judul/Karya</th><th>Kategori</th><th>Status Peran</th><th>AK Mentah</th><th>Aksi</th></tr></thead>
-                    <tbody id="table-prestasi"></tbody>
-                </table>
+                
+                <div class="table-container">
+                    <table class="data-table" style="margin-top: 2rem;">
+                        <thead><tr><th>Tahun</th><th>Judul/Karya</th><th>Kategori</th><th>Status Peran</th><th>AK Mentah</th><th>Aksi</th></tr></thead>
+                        <tbody id="table-prestasi"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
