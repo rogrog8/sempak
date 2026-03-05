@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEMPAK - Sistem Informasi Perhitungan Angka Kredit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <img src="img/logo-kampus.png" alt="Logo SEMPAK" id="sidebar-logo">
+            </div>
+            
+            <h2>SEMPAK</h2>
+            <p class="fullname">Sistem Informasi Perhitungan<br>Angka Kredit</p>
+            <span class="version-badge">v6.0</span>
+        </div>
+        
+        <ul class="nav-links">
+            <li class="has-submenu">
+                <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="active">📊 Dashboard Utama</a>
+                <ul class="sub-menu">
+                    <li><a href="#" onclick="switchTab('skp')" id="nav-skp">↳ Input AK Konversi (SKP)</a></li>
+                    <li><a href="#" onclick="switchTab('prestasi')" id="nav-prestasi">↳ Input AK Prestasi</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" onclick="switchTab('pengangkatan')" id="nav-pengangkatan">🎓 Pengangkatan Pertama</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        
+        <section id="dashboard" class="tab-content active">
+            <div class="header-section">
+                <h1>Dashboard Sempak</h1>
+                <p>Kalkulasi Final Perhitungan Angka Kredit</p>
+            </div>
+            
+            <div class="card grid-3">
+                <div class="form-group">
+                    <label>Jabatan Saat Ini</label>
+                    <select id="dash-jabatan" class="form-control" onchange="updateDashboard()">
+                        <option value="Asisten Ahli">Asisten Ahli (AK Dasar 150)</option>
+                        <option value="Lektor">Lektor (AK Dasar 200)</option>
+                        <option value="Lektor Kepala">Lektor Kepala (AK Dasar 400)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Target Jabatan & AK</label>
+                    <select id="dash-target" class="form-control" onchange="updateDashboard()">
+                        <option value="200">Lektor (AK 200)</option>
+                        <option value="300">Lektor (AK 300)</option>
+                        <option value="400">Lektor Kepala (AK 400)</option>
+                        <option value="550">Lektor Kepala (AK 550)</option>
+                        <option value="700">Lektor Kepala (AK 700)</option>
+                        <option value="850" selected>Profesor (AK 850)</option>
+                        <option value="1050">Profesor (AK 1050)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>AK Integrasi (Opsional)</label>
+                    <input type="number" id="dash-ak-integrasi" class="form-control" value="0" placeholder="Contoh: 15.5" oninput="updateDashboard()">
+                </div>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>Total AK Konversi (Diakui)</h3>
+                    <div class="big-number" id="sum-skp">0.00</div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Dari Menu SKP & Pendidikan</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total AK Prestasi (Diakui)</h3>
+                    <div class="big-number" id="sum-prestasi">0.00</div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Dibatasi sisa kuota tahunan</p>
+                </div>
+            </div>
+
+            <div class="card result-board" id="final-result">
+                </div>
+        </section>
+
+        <section id="pengangkatan" class="tab-content">
+            <div class="header-section">
+                <h1>AK Pengangkatan Pertama</h1>
+                <p>Penghitungan AK proporsional dari masa CPNS menjadi PNS</p>
+            </div>
+            <div class="card">
+                <div class="form-group">
+                    <label>Jabatan Fungsional Pengangkatan</label>
+                    <select id="peng-jabatan" class="form-control">
+                        <option value="12.5">Asisten Ahli (Koefisien 12,5)</option>
+                        <option value="25">Lektor (Koefisien 25)</option>
+                    </select>
+                </div>
+                <h3 style="margin: 1.5rem 0 1rem; font-size: 1rem; color: var(--primary); border-bottom: 1px solid #E2E8F0; padding-bottom: 0.5rem;">Periode 1</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>Jumlah Bulan</label><input type="number" id="peng-bulan1" class="form-control" value="10"></div>
+                    <div class="form-group">
+                        <label>Predikat Kinerja</label>
+                        <select id="peng-predikat1" class="form-control">
+                            <option value="1.5">Sangat Baik (150%)</option><option value="1.0" selected>Baik (100%)</option><option value="0.75">Cukup (75%)</option>
+                        </select>
+                    </div>
+                </div>
+                <h3 style="margin: 1.5rem 0 1rem; font-size: 1rem; color: var(--primary); border-bottom: 1px solid #E2E8F0; padding-bottom: 0.5rem;">Periode 2</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>Jumlah Bulan</label><input type="number" id="peng-bulan2" class="form-control" value="2"></div>
+                    <div class="form-group">
+                        <label>Predikat Kinerja</label>
+                        <select id="peng-predikat2" class="form-control">
+                            <option value="1.5">Sangat Baik (150%)</option><option value="1.0" selected>Baik (100%)</option><option value="0.75">Cukup (75%)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-primary" style="margin-top: 1rem;" onclick="hitungPengangkatan()">Hitung AK Pengangkatan</button>
+            </div>
+            <div class="card result-board" id="peng-result" style="display: none;"></div>
+        </section>
+
+        <section id="skp" class="tab-content">
+            <div class="header-section">
+                <h1>Perhitungan AK Konversi (SKP)</h1>
+            </div>
+            
+            <div class="card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-main);">1. Input Predikat Kinerja (SKP)</h3>
+                <div class="grid-3">
+                    <div class="form-group"><label>Tahun Penilaian</label><input type="number" id="skp-tahun" class="form-control" placeholder="Contoh: 2024"></div>
+                    <div class="form-group">
+                        <label>Predikat Kinerja</label>
+                        <select id="skp-predikat" class="form-control">
+                            <option value="1.5">Sangat Baik (150%)</option><option value="1.0">Baik (100%)</option><option value="0.75">Cukup (75%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;"><button class="btn-primary" onclick="tambahSKP()">+ Tambah SKP</button></div>
+                </div>
+            </div>
+
+            <div class="card" style="background-color: #F0FDF4; border: 1px solid #BBF7D0;">
+                <h3 style="color: #166534; font-size: 1.1rem; margin-bottom: 0.5rem;">🎓 2. Tambahan AK Peningkatan Pendidikan</h3>
+                <p style="font-size: 0.85rem; color: #15803D; margin-bottom: 1rem;">Sesuai Perka BKN No. 3 Tahun 2023, perolehan ijazah formal lebih tinggi memberikan tambahan AK sebesar 25% dari kebutuhan Kenaikan Pangkat.</p>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label style="color: #166534;">Tahun Kelulusan / Ijazah</label>
+                        <input type="number" id="pend-tahun" class="form-control" placeholder="Contoh: 2024">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <button class="btn-primary" style="background-color: #16A34A; border: none;" onclick="tambahPendidikan()">+ Tambah Ijazah</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Daftar Rekap SKP & Pendidikan</h3>
+                <table class="data-table">
+                    <thead><tr><th>Tahun</th><th>Jenis Penilaian / Kinerja</th><th>Nilai AK</th><th>Aksi</th></tr></thead>
+                    <tbody id="table-skp"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="prestasi" class="tab-content">
+            <div class="header-section">
+                <h1>Perhitungan AK Prestasi (Karya Ilmiah/Publikasi)</h1>
+                <p>Silakan lengkapi sesuai Tabel 2 Kepmendikbudristek.</p>
+            </div>
+            <div class="card">
+                <div class="form-group">
+                    <label>Jenis Luaran / Karya Ilmiah</label>
+                    <select id="pres-kategori" class="form-control" style="font-size: 0.9rem;">
+                        <optgroup label="A. BUKU & MONOGRAF">
+                            <option value="40">Buku Referensi (Maks 40)</option>
+                            <option value="40">Buku Monograf (Maks 40)</option>
+                            <option value="15">Book Chapter Internasional (Maks 15)</option>
+                            <option value="10">Book Chapter Nasional (Maks 10)</option>
+                        </optgroup>
+                        <optgroup label="B. JURNAL ILMIAH">
+                            <option value="40">Jurnal Internasional Bereputasi Q1 (Maks 40)</option>
+                            <option value="38">Jurnal Internasional Bereputasi Q2 (Maks 38)</option>
+                            <option value="35">Jurnal Internasional Bereputasi Q3 (Maks 35)</option>
+                            <option value="33">Jurnal Internasional Bereputasi Q4 (Maks 33)</option>
+                            <option value="30">Jurnal Internasional Terindeks non-SJR/IF (Maks 30)</option>
+                            <option value="25">Jurnal Nasional Terakreditasi Peringkat 1 atau 2 (Maks 25)</option>
+                            <option value="20">Jurnal Nasional Terakreditasi Peringkat 3 atau 4 (Maks 20)</option>
+                            <option value="15">Jurnal Nasional Terakreditasi Peringkat 5 atau 6 (Maks 15)</option>
+                            <option value="10">Jurnal Nasional Tidak Terakreditasi (ISSN) (Maks 10)</option>
+                        </optgroup>
+                        <optgroup label="C. DISEMINASI / SEMINAR">
+                            <option value="20">Prosiding Internasional Terindeks (Maks 20)</option>
+                            <option value="10">Prosiding Internasional Tidak Terindeks (Maks 10)</option>
+                            <option value="7.5">Prosiding Nasional (Maks 7.5)</option>
+                            <option value="5">Seminar Internasional Tanpa Prosiding (Maks 5)</option>
+                            <option value="3">Seminar Nasional Tanpa Prosiding (Maks 3)</option>
+                            <option value="2">Koran / Majalah Populer (Maks 2)</option>
+                            <option value="2">Hasil Penelitian/Industri di Perpustakaan (Maks 2)</option>
+                        </optgroup>
+                        <optgroup label="D. KARYA LAINNYA">
+                            <option value="15">Menerjemahkan/Menyadur Buku (Maks 15)</option>
+                            <option value="10">Mengedit/Menyunting Buku (Maks 10)</option>
+                            <option value="60">Paten Internasional Diterapkan di Industri (Maks 60)</option>
+                            <option value="50">Paten Internasional (Maks 50)</option>
+                            <option value="40">Paten Nasional Diterapkan di Industri (Maks 40)</option>
+                            <option value="30">Paten Nasional (Maks 30)</option>
+                            <option value="20">Paten Sederhana Nasional (Maks 20)</option>
+                            <option value="15">Karya Ciptaan/Desain/Seni Bersertifikat HKI (Maks 15)</option>
+                            <option value="40">Karya Inovatif/Teknologi Tepat Guna (Maks 40)</option>
+                            <option value="20">Policy Brief Tingkat Internasional (Maks 20)</option>
+                            <option value="15">Policy Brief Tingkat Nasional (Maks 15)</option>
+                            <option value="10">Policy Brief Tingkat Lokal (Maks 10)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label>Tahun Publikasi</label>
+                        <input type="number" id="pres-tahun" class="form-control" placeholder="Contoh: 2024">
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Total Penulis</label>
+                        <input type="number" id="pres-jml-penulis" class="form-control" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Peran Anda</label>
+                        <select id="pres-peran" class="form-control">
+                            <option value="TUNGGAL">Penulis Tunggal (100%)</option>
+                            <option value="PERTAMA_DAN_KORES">Penulis Pertama & Korespondensi (60%)</option>
+                            <option value="PERTAMA_SAJA">Penulis Pertama (Bukan Kores)</option>
+                            <option value="KORES_SAJA">Penulis Korespondensi (Bukan Pertama)</option>
+                            <option value="ANGGOTA_A">Anggota (Jika ada Penulis 1 merangkap Kores)</option>
+                            <option value="ANGGOTA_B">Anggota (Jika Penulis 1 TIDAK merangkap Kores)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Judul Karya (Opsional)</label><input type="text" id="pres-judul" class="form-control" placeholder="Masukkan judul..."></div>
+                <button class="btn-primary" onclick="tambahPrestasi()">+ Hitung & Tambah Prestasi</button>
+                <table class="data-table" style="margin-top: 2rem;">
+                    <thead><tr><th>Tahun</th><th>Judul/Karya</th><th>Kategori</th><th>Status Peran</th><th>AK Mentah</th><th>Aksi</th></tr></thead>
+                    <tbody id="table-prestasi"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
